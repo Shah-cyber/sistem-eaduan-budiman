@@ -11,7 +11,7 @@
     {{-- Header with Back Button --}}
     <div class="mb-6">
         <div class="flex items-center gap-4 mb-6">
-            <a href="#"
+            <a href="{{ route($indexRoute) }}"
                 class="group flex items-center gap-2 px-4 py-2 rounded-xl bg-white border-2 border-[#F0F7F0] text-[#132A13] shadow-sm transition-all duration-300 hover:bg-[#F0F7F0] hover:border-[#132A13] hover:shadow-md active:scale-95 touch-manipulation">
                 <svg class="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg">
