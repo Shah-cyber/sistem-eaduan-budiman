@@ -41,7 +41,7 @@
             </h2>
         </div>
         <div class="p-6 sm:p-8">
-            <form action="{{ route('asdasd.update', ['pengumuman' => $item->announcementID]) }}" method="POST" enctype="multipart/form-data"
+            <form action="{{ route($updateRoute, ['pengumuman' => $item->announcementID]) }}" method="POST" enctype="multipart/form-data"
                 class="space-y-6">
                 @csrf
                 @method('PATCH')
@@ -90,12 +90,12 @@
                         </div>
 
                         <div>
-                            <label for="tarikh_tamat" class="sr-only">Tarikh Tamat</label>
-                            <input type="date" name="tarikh_tamat" id="tarikh_tamat"
+                            <label for="tarikh_akhir" class="sr-only">Tarikh Akhir</label>
+                            <input type="date" name="tarikh_akhir" id="tarikh_akhir"
                                 class="w-full rounded-xl border-2 border-gray-200 px-4 py-3 bg-white text-gray-900 focus:border-[#132A13] focus:ring-2 focus:ring-[#132A13]/20 focus:outline-none transition-all"
                                 required
-                                value="{{ old('tarikh_tamat', isset($item) ? (isset($item->end_date) && $item->end_date ? \Carbon\Carbon::parse($item->end_date)->format('Y-m-d') : (isset($item->date_end) && $item->date_end ? \Carbon\Carbon::parse($item->date_end)->format('Y-m-d') : (isset($item->expiry_date) && $item->expiry_date ? \Carbon\Carbon::parse($item->expiry_date)->format('Y-m-d') : ''))) : '') }}">
-                            @error('tarikh_tamat')
+                                value="{{ old('tarikh_akhir', isset($item) ? (isset($item->end_date) && $item->end_date ? \Carbon\Carbon::parse($item->end_date)->format('Y-m-d') : (isset($item->date_end) && $item->date_end ? \Carbon\Carbon::parse($item->date_end)->format('Y-m-d') : (isset($item->expiry_date) && $item->expiry_date ? \Carbon\Carbon::parse($item->expiry_date)->format('Y-m-d') : ''))) : '') }}">
+                            @error('tarikh_akhir')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
