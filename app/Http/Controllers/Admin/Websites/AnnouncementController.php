@@ -40,7 +40,7 @@ class AnnouncementController extends Controller
             'start_date' => $request->input('tarikh_mula'),
             'end_date' => $request->input('tarikh_akhir'),
             'image_base64' => $image ? base64_encode(file_get_contents($image->getRealPath())) : null,
-            'adminID' => "[2,3]"
+            'adminID' => 2
         ];
         $response = ApiHelper::post('/announcement', $data);
         return redirect()->back()->with('success', 'Pengumuman berjaya ditambah.');
@@ -76,7 +76,7 @@ class AnnouncementController extends Controller
             'start_date' => $request->input('tarikh_mula'),
             'end_date' => $request->input('tarikh_akhir'),
             'image_base64' => $image ? base64_encode(file_get_contents($image->getRealPath())) : null,
-            'adminID' => "[2,3]"
+            'adminID' => 2
         ];
         $response = ApiHelper::patch('/announcement/' . $id, $data);
         return redirect()->back()->with('success', 'Pengumuman berjaya dikemaskini.');
