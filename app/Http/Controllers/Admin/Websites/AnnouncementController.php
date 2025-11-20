@@ -4,18 +4,47 @@ namespace App\Http\Controllers\Admin\Websites;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 use App\ApiHelper;
-use Illuminate\Container\Attributes\Auth;
 
 class AnnouncementController extends Controller
 {
+    /**
+     * Determine the correct route name based on user role
+     */
+    protected function getRouteName(string $action): string
+    {
+        /** @var User|null $user */
+        $user = Auth::user();
+        
+        if ($user && $user->hasRole('Super Admin')) {
+            return 'admin.websites.pengumuman.' . $action;
+        }
+        
+        return 'admin.panel.websites.pengumuman.' . $action;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $asdasd = ApiHelper::get('/announcement')->announcements;
+        $announcements = ApiHelper::get('/announcement')->announcements ?? [];
+        
+        // Convert to collection and paginate
+        $asdasd = collect($announcements);
+        $currentPage = request()->get('page', 1);
+        $perPage = 5;
+        
+        $asdasd = new \Illuminate\Pagination\LengthAwarePaginator(
+            $asdasd->forPage($currentPage, $perPage),
+            $asdasd->count(),
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+        
         return view('admin.websites.pengumuman.index', compact('asdasd'));
     }
 
@@ -43,7 +72,8 @@ class AnnouncementController extends Controller
             'adminID' => 2
         ];
         $response = ApiHelper::post('/announcement', $data);
-        return redirect()->back()->with('success', 'Pengumuman berjaya ditambah.');
+        return redirect()->route($this->getRouteName('index'))
+            ->with('success', 'Pengumuman berjaya ditambah.');
     }
 
     /**
@@ -79,7 +109,8 @@ class AnnouncementController extends Controller
             'adminID' => 2
         ];
         $response = ApiHelper::patch('/announcement/' . $id, $data);
-        return redirect()->back()->with('success', 'Pengumuman berjaya dikemaskini.');
+        return redirect()->route($this->getRouteName('index'))
+            ->with('success', 'Pengumuman berjaya dikemaskini.');
     }
 
     /**
@@ -88,6 +119,7 @@ class AnnouncementController extends Controller
     public function destroy(string $id)
     {
         $response = ApiHelper::delete('/announcement/' . $id);
-        return redirect()->back()->with('success', 'Pengumuman berjaya dipadam.');
+        return redirect()->route($this->getRouteName('index'))
+            ->with('success', 'Pengumuman berjaya dipadam.');
     }
 }
