@@ -30,22 +30,30 @@ class AnnouncementController extends Controller
      */
     public function index()
     {
-        $announcements = ApiHelper::get('/announcement')->announcements ?? [];
-        
-        // Convert to collection and paginate
-        $asdasd = collect($announcements);
-        $currentPage = request()->get('page', 1);
-        $perPage = 5;
-        
-        $asdasd = new \Illuminate\Pagination\LengthAwarePaginator(
-            $asdasd->forPage($currentPage, $perPage),
-            $asdasd->count(),
-            $perPage,
-            $currentPage,
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
-        
-        return view('admin.websites.pengumuman.index', compact('asdasd'));
+        try {
+            $response = ApiHelper::get('/announcement');
+            $announcements = $response->announcements ?? [];
+            
+            // Convert to collection and paginate
+            $asdasd = collect($announcements);
+            $currentPage = request()->get('page', 1);
+            $perPage = 5;
+            
+            $asdasd = new \Illuminate\Pagination\LengthAwarePaginator(
+                $asdasd->forPage($currentPage, $perPage),
+                $asdasd->count(),
+                $perPage,
+                $currentPage,
+                ['path' => request()->url(), 'query' => request()->query()]
+            );
+            
+            return view('admin.websites.pengumuman.index', compact('asdasd'));
+            
+        } catch (\Exception $e) {
+            return view('admin.websites.pengumuman.index', [
+                'asdasd' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 5)
+            ])->with('error', 'Gagal mendapatkan data pengumuman: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -61,19 +69,53 @@ class AnnouncementController extends Controller
      */
     public function store(Request $request)
     {
-        $image = $request->file('gambar');
+        // Validate input
+        $request->validate([
+            'tajuk' => 'required|string|max:255',
+            'kandungan' => 'required|string',
+            'tarikh_mula' => 'required|date',
+            'tarikh_akhir' => 'required|date|after_or_equal:tarikh_mula',
+            'gambar' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
+        ], [
+            'tajuk.required' => 'Tajuk pengumuman diperlukan.',
+            'kandungan.required' => 'Kandungan pengumuman diperlukan.',
+            'tarikh_mula.required' => 'Tarikh mula diperlukan.',
+            'tarikh_akhir.required' => 'Tarikh akhir diperlukan.',
+            'tarikh_akhir.after_or_equal' => 'Tarikh akhir mesti sama atau selepas tarikh mula.',
+            'gambar.image' => 'Fail yang dimuat naik mestilah gambar.',
+            'gambar.mimes' => 'Gambar mestilah format: jpeg, jpg, atau png.',
+            'gambar.max' => 'Saiz gambar tidak boleh melebihi 2MB.',
+        ]);
 
-        $data = [
-            'title' => $request->input('tajuk'),
-            'content' => $request->input('kandungan'),
-            'start_date' => $request->input('tarikh_mula'),
-            'end_date' => $request->input('tarikh_akhir'),
-            'image_base64' => $image ? base64_encode(file_get_contents($image->getRealPath())) : null,
-            'adminID' => 2
-        ];
-        $response = ApiHelper::post('/announcement', $data);
-        return redirect()->route($this->getRouteName('index'))
-            ->with('success', 'Pengumuman berjaya ditambah.');
+        try {
+            $image = $request->file('gambar');
+
+            $data = [
+                'title' => $request->input('tajuk'),
+                'content' => $request->input('kandungan'),
+                'start_date' => $request->input('tarikh_mula'),
+                'end_date' => $request->input('tarikh_akhir'),
+                'image_base64' => $image ? base64_encode(file_get_contents($image->getRealPath())) : null,
+                'adminID' => Auth::id() ?? Auth::user()->id
+            ];
+            
+            $response = ApiHelper::post('/announcement', $data);
+            
+            // Check for API errors
+            if ($response && property_exists($response, 'error')) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Gagal menambah pengumuman: ' . ($response->error ?? 'Unknown error'));
+            }
+            
+            return redirect()->route($this->getRouteName('index'))
+                ->with('success', 'Pengumuman berjaya ditambah.');
+                
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Ralat: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -89,8 +131,27 @@ class AnnouncementController extends Controller
      */
     public function edit(string $id)
     {
-        $item = ApiHelper::get('/announcement/' . $id)->announcement;
-        return view('admin.websites.pengumuman.edit', compact('item'));
+        try {
+            $response = ApiHelper::get('/announcement/' . $id);
+            
+            if (!$response || property_exists($response, 'error')) {
+                return redirect()->route($this->getRouteName('index'))
+                    ->with('error', 'Gagal mendapatkan data pengumuman: ' . ($response->error ?? 'Unknown error'));
+            }
+            
+            $item = $response->announcement ?? null;
+            
+            if (!$item) {
+                return redirect()->route($this->getRouteName('index'))
+                    ->with('error', 'Pengumuman tidak dijumpai.');
+            }
+            
+            return view('admin.websites.pengumuman.edit', compact('item'));
+            
+        } catch (\Exception $e) {
+            return redirect()->route($this->getRouteName('index'))
+                ->with('error', 'Ralat: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -98,19 +159,53 @@ class AnnouncementController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $image = $request->file('gambar');
+        // Validate input
+        $request->validate([
+            'tajuk' => 'required|string|max:255',
+            'kandungan' => 'required|string',
+            'tarikh_mula' => 'required|date',
+            'tarikh_akhir' => 'required|date|after_or_equal:tarikh_mula',
+            'gambar' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
+        ], [
+            'tajuk.required' => 'Tajuk pengumuman diperlukan.',
+            'kandungan.required' => 'Kandungan pengumuman diperlukan.',
+            'tarikh_mula.required' => 'Tarikh mula diperlukan.',
+            'tarikh_akhir.required' => 'Tarikh akhir diperlukan.',
+            'tarikh_akhir.after_or_equal' => 'Tarikh akhir mesti sama atau selepas tarikh mula.',
+            'gambar.image' => 'Fail yang dimuat naik mestilah gambar.',
+            'gambar.mimes' => 'Gambar mestilah format: jpeg, jpg, atau png.',
+            'gambar.max' => 'Saiz gambar tidak boleh melebihi 2MB.',
+        ]);
 
-        $data = [
-            'title' => $request->input('tajuk'),
-            'content' => $request->input('kandungan'),
-            'start_date' => $request->input('tarikh_mula'),
-            'end_date' => $request->input('tarikh_akhir'),
-            'image_base64' => $image ? base64_encode(file_get_contents($image->getRealPath())) : null,
-            'adminID' => 2
-        ];
-        $response = ApiHelper::patch('/announcement/' . $id, $data);
-        return redirect()->route($this->getRouteName('index'))
-            ->with('success', 'Pengumuman berjaya dikemaskini.');
+        try {
+            $image = $request->file('gambar');
+
+            $data = [
+                'title' => $request->input('tajuk'),
+                'content' => $request->input('kandungan'),
+                'start_date' => $request->input('tarikh_mula'),
+                'end_date' => $request->input('tarikh_akhir'),
+                'image_base64' => $image ? base64_encode(file_get_contents($image->getRealPath())) : null,
+                'adminID' => Auth::id() ?? 2
+            ];
+            
+            $response = ApiHelper::patch('/announcement/' . $id, $data);
+            
+            // Check for API errors
+            if ($response && property_exists($response, 'error')) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Gagal mengemaskini pengumuman: ' . ($response->error ?? 'Unknown error'));
+            }
+            
+            return redirect()->route($this->getRouteName('index'))
+                ->with('success', 'Pengumuman berjaya dikemaskini.');
+                
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Ralat: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -118,8 +213,21 @@ class AnnouncementController extends Controller
      */
     public function destroy(string $id)
     {
-        $response = ApiHelper::delete('/announcement/' . $id);
-        return redirect()->route($this->getRouteName('index'))
-            ->with('success', 'Pengumuman berjaya dipadam.');
+        try {
+            $response = ApiHelper::delete('/announcement/' . $id);
+            
+            // Check for API errors
+            if ($response && property_exists($response, 'error')) {
+                return redirect()->back()
+                    ->with('error', 'Gagal memadam pengumuman: ' . ($response->error ?? 'Unknown error'));
+            }
+            
+            return redirect()->route($this->getRouteName('index'))
+                ->with('success', 'Pengumuman berjaya dipadam.');
+                
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Ralat: ' . $e->getMessage());
+        }
     }
 }

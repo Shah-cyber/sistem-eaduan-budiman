@@ -23,7 +23,7 @@
         <div>
             <h1
                 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-2 bg-gradient-to-r from-[#132A13] via-[#2F4F2F] to-[#132A13] bg-clip-text text-transparent">
-                Tambah Pengumuman Baharu adasdsa
+                Tambah Pengumuman Baharu
             </h1>
             <p class="text-sm sm:text-base text-gray-600">Isi maklumat pengumuman untuk ditambah ke dalam sistem</p>
         </div>
@@ -42,7 +42,7 @@
             </h2>
         </div>
         <div class="p-6 sm:p-8">
-            <form action="{{ route('asdasd.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+            <form action="{{ route($storeRoute) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                 @csrf
                 @method('POST')
 
