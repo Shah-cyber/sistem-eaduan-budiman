@@ -42,7 +42,7 @@
         </div>
         <div class="p-6 sm:p-8">
             <form action="{{ route($updateRoute, ['pengumuman' => $item->announcementID]) }}" method="POST" enctype="multipart/form-data"
-                class="space-y-6">
+                class="space-y-6" id="pengumumanForm">
                 @csrf
                 @method('PATCH')
 
@@ -165,6 +165,9 @@
                     confirmButtonColor: '#dc2626'
                 });
             @endif
+
+            // Prevent double submission
+            preventDoubleSubmit('pengumumanForm', 'Mengemaskini Pengumuman...');
         </script>
     @endpush
 @endsection

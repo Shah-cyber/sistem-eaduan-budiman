@@ -31,90 +31,90 @@
             <a href="{{ route($createRoute) }}"
                 class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#132A13] to-[#2F4F2F] px-5 py-3 sm:px-6 sm:py-3.5 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] active:scale-95 transform touch-manipulation">
                 <div class="absolute inset-0 bg-gradient-to-br from-white/0 to-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                </div>
+            </div>
                 <div class="relative flex items-center justify-center gap-2">
                     <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
                             clip-rule="evenodd"></path>
                     </svg>
                     <span>Tambah Aktiviti</span>
-                </div>
+        </div>
             </a>
         </div>
-    </div>
+        </div>
 
     {{-- Data Table --}}
     <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg">
         @if (isset($activities) && count($activities) > 0)
-            <div class="overflow-x-auto">
+        <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gradient-to-r from-[#F0F7F0] to-[#F0F7F0]/80">
-                        <tr>
+                    <tr>
                             <th class="px-4 sm:px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700">No.</th>
                             <th class="px-4 sm:px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700">Gambar</th>
                             <th class="px-4 sm:px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700">Nama Aktiviti</th>
                             <th class="hidden md:table-cell px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700">Keterangan</th>
                             <th class="hidden sm:table-cell px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700">Tarikh</th>
                             <th class="px-4 sm:px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-gray-700">Tindakan</th>
-                        </tr>
-                    </thead>
+                    </tr>
+                </thead>
                     <tbody class="divide-y divide-gray-200 bg-white">
-                        @foreach ($activities as $index => $activity)
-                            @php
+                    @foreach ($activities as $index => $activity)
+                        @php
                                 $images = array_filter(explode(',', $activity->image_path ?? ''));
-                                $imagePaths = array_map(fn($img) => config('app.website_url') . '/storage/' . trim($img), $images);
-                            @endphp
+                            $imagePaths = array_map(fn($img) => config('app.website_url') . '/storage/' . trim($img), $images);
+                        @endphp
                             <tr class="hover:bg-[#F0F7F0]/50 transition-colors">
                                 <td class="whitespace-nowrap px-4 sm:px-6 py-4">
                                     <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#F0F7F0] text-[#132A13] font-bold text-sm">
-                                        {{ $loop->iteration }}
+                                {{ $loop->iteration }}
                                     </span>
-                                </td>
+                            </td>
                                 <td class="px-4 sm:px-6 py-4">
                                     <div class="w-24 sm:w-36 h-16 sm:h-24 rounded-lg overflow-hidden bg-gray-200 relative group carousel hover:shadow-lg transition">
-                                        @if (!empty($imagePaths))
-                                            <div class="carousel-container flex transition-transform duration-300 h-full" data-index="0">
-                                                @foreach ($imagePaths as $img)
-                                                    <img src="{{ $img }}" alt="Gambar Aktiviti" class="w-full h-full object-cover flex-shrink-0">
-                                                @endforeach
-                                            </div>
-                                            @if (count($imagePaths) > 1)
+                                    @if (!empty($imagePaths))
+                                        <div class="carousel-container flex transition-transform duration-300 h-full" data-index="0">
+                                            @foreach ($imagePaths as $img)
+                                                <img src="{{ $img }}" alt="Gambar Aktiviti" class="w-full h-full object-cover flex-shrink-0">
+                                            @endforeach
+                                        </div>
+                                        @if (count($imagePaths) > 1)
                                                 <button class="carousel-btn-prev absolute left-0 top-1/2 -translate-y-1/2 p-1 bg-black/40 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-r-lg">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="m15 18-6-6 6-6" />
-                                                    </svg>
-                                                </button>
+                                                    <path d="m15 18-6-6 6-6" />
+                                                </svg>
+                                            </button>
                                                 <button class="carousel-btn-next absolute right-0 top-1/2 -translate-y-1/2 p-1 bg-black/40 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-l-lg">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="m9 18 6-6-6-6" />
-                                                    </svg>
-                                                </button>
+                                                    <path d="m9 18 6-6-6-6" />
+                                                </svg>
+                                            </button>
                                                 <div class="absolute bottom-1 right-1 text-xs px-1.5 py-0.5 bg-black/50 text-white rounded carousel-indicator">
-                                                    1/{{ count($imagePaths) }}
-                                                </div>
-                                            @else
-                                                <div class="absolute bottom-1 right-1 text-xs px-1.5 py-0.5 bg-black/50 text-white rounded">
-                                                    1/1
-                                                </div>
-                                            @endif
+                                                1/{{ count($imagePaths) }}
+                                            </div>
                                         @else
-                                            <div class="flex items-center justify-center h-full text-gray-400 text-xs sm:text-sm">
-                                                Tiada Gambar
+                                                <div class="absolute bottom-1 right-1 text-xs px-1.5 py-0.5 bg-black/50 text-white rounded">
+                                                1/1
                                             </div>
                                         @endif
-                                    </div>
-                                </td>
+                                    @else
+                                            <div class="flex items-center justify-center h-full text-gray-400 text-xs sm:text-sm">
+                                            Tiada Gambar
+                                        </div>
+                                    @endif
+                                </div>
+                            </td>
                                 <td class="px-4 sm:px-6 py-4">
                                     <div class="text-sm font-semibold text-gray-900">{{ $activity->title ?? 'N/A' }}</div>
                                     <div class="md:hidden text-xs text-gray-500 mt-1">{{ Str::limit($activity->description ?? '', 50) }}</div>
                                     <div class="sm:hidden text-xs text-gray-600 mt-1">{{ \Carbon\Carbon::parse($activity->activity_date ?? now())->format('d/m/Y') }}</div>
-                                </td>
+                            </td>
                                 <td class="hidden md:table-cell px-6 py-4">
                                     <div class="text-sm text-gray-600 max-w-xs truncate">{{ $activity->description ?? '-' }}</div>
-                                </td>
+                            </td>
                                 <td class="hidden sm:table-cell whitespace-nowrap px-6 py-4">
                                     <div class="text-sm text-gray-600">{{ \Carbon\Carbon::parse($activity->activity_date ?? now())->format('d/m/Y') }}</div>
-                                </td>
+                            </td>
                                 <td class="whitespace-nowrap px-4 sm:px-6 py-4">
                                     <div class="flex items-center justify-end gap-2 flex-wrap">
                                         <a href="{{ route($editRoute, ['aktiviti' => $activity->activityID]) }}"
@@ -126,8 +126,8 @@
                                         </a>
                                         <form action="{{ route($destroyRoute, ['aktiviti' => $activity->activityID]) }}" method="POST"
                                             class="inline delete-aktiviti-form">
-                                            @csrf
-                                            @method('DELETE')
+                                    @csrf
+                                    @method('DELETE')
                                             <button type="button" 
                                                 class="delete-aktiviti-btn inline-flex items-center gap-1.5 rounded-lg border-2 border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 shadow-sm hover:bg-red-600 hover:text-white hover:border-red-600 transition-all hover:scale-105 active:scale-95 transform touch-manipulation"
                                                 data-name="{{ $activity->title ?? 'Aktiviti ini' }}">
@@ -136,14 +136,14 @@
                                                 </svg>
                                                 <span class="hidden xs:inline">Padam</span>
                                             </button>
-                                        </form>
+                                </form>
                                     </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
         @else
             <div class="px-6 py-16 text-center">
                 <div class="w-20 h-20 rounded-full bg-gradient-to-br from-[#F0F7F0] to-[#F0F7F0]/50 flex items-center justify-center mx-auto mb-4">
@@ -210,7 +210,7 @@
                     carousel.dataset.index = currentIndex;
                     carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
                     if (indicator) {
-                        indicator.textContent = `${currentIndex + 1}/${totalImages}`;
+                    indicator.textContent = `${currentIndex + 1}/${totalImages}`;
                     }
                 };
 

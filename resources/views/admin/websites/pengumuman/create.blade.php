@@ -42,7 +42,7 @@
             </h2>
         </div>
         <div class="p-6 sm:p-8">
-            <form action="{{ route($storeRoute) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+            <form action="{{ route($storeRoute) }}" method="POST" enctype="multipart/form-data" class="space-y-6" id="pengumumanForm">
                 @csrf
                 @method('POST')
 
@@ -160,6 +160,9 @@
                     confirmButtonColor: '#dc2626'
                 });
             @endif
+
+            // Prevent double submission
+            preventDoubleSubmit('pengumumanForm', 'Menyimpan Pengumuman...');
         </script>
     @endpush
 @endsection

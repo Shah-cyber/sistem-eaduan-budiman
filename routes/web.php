@@ -29,7 +29,7 @@ Route::get('/', function () {
     if (Auth::check()) {
         /** @var User|null $user */
         $user = Auth::user();
-
+        
         if ($user && method_exists($user, 'hasRole')) {
             if ($user->hasRole('Super Admin')) {
                 return redirect()->route('admin.dashboard');
@@ -38,11 +38,11 @@ Route::get('/', function () {
                 return redirect()->route('admin.panel.dashboard');
             }
         }
-
+        
         // Fallback for authenticated users without admin roles
         return redirect()->route('dashboard');
     }
-
+    
     // Show login page for guests
     return app(AuthenticatedSessionController::class)->create();
 });
@@ -59,7 +59,7 @@ Route::get('/dashboard', function () {
             return redirect()->route('admin.panel.dashboard');
         }
     }
-
+    
     // Fallback for non-admin users (if any)
     return view('dashboard');
 })->middleware(['auth'])->name('dashboard');
@@ -137,7 +137,9 @@ Route::get('/user', function () {
 })->name('public.home');
 
 Route::get('/user/tambah-aduan', [PublicComplaintController::class, 'create'])->name('public.complaint.create');
-Route::post('/user/tambah-aduan', [PublicComplaintController::class, 'store'])->name('public.complaint.store');
+Route::post('/user/tambah-aduan', [PublicComplaintController::class, 'store'])
+    ->middleware('throttle:5,1') // Max 5 submissions per minute per IP
+    ->name('public.complaint.store');
 
 Route::get('/user/semak-status', [PublicComplaintController::class, 'checkStatus'])->name('public.status.check');
 Route::get('/user/list-aduan', [PublicComplaintController::class, 'list'])->name('public.complaints.list');

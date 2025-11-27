@@ -32,6 +32,50 @@ class PublicComplaintController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // ============================================================
+        // SESSION LOCK PREVENTION
+        // ============================================================
+        // Check if a submission is already in progress for this session
+        $submissionLockKey = 'complaint_submission_lock';
+        $lastSubmissionTime = session($submissionLockKey);
+        
+        if ($lastSubmissionTime && now()->timestamp - $lastSubmissionTime < 10) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Sila tunggu sebentar sebelum menghantar aduan. Sistem sedang memproses aduan anda.');
+        }
+        
+        // Set lock for 10 seconds
+        session([$submissionLockKey => now()->timestamp]);
+        
+        // ============================================================
+        // DUPLICATE SUBMISSION PREVENTION
+        // ============================================================
+        // Check for duplicate submissions within the last 2 minutes
+        // This prevents users from submitting the same complaint multiple times
+        $recentDuplicate = Complaint::where('phone_number', $request->telefon)
+            ->where('email', $request->email)
+            ->where('description', $request->huraian)
+            ->where('created_at', '>', now()->subMinutes(2))
+            ->first();
+
+        if ($recentDuplicate) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Aduan yang serupa telah dihantar baru-baru ini. Sila tunggu beberapa minit sebelum menghantar aduan baharu. ID Aduan anda: ' . ($recentDuplicate->public_id ?? '#' . $recentDuplicate->id));
+        }
+
+        // Check rate limiting: Maximum 3 complaints per hour from same phone number
+        $hourlyCount = Complaint::where('phone_number', $request->telefon)
+            ->where('created_at', '>', now()->subHour())
+            ->count();
+
+        if ($hourlyCount >= 3) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Anda telah menghantar terlalu banyak aduan dalam masa yang singkat. Sila cuba lagi selepas 1 jam.');
+        }
+
         // Map form field names to database column names
         $validated = $request->validate([
             'nama' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s]+$/'],
@@ -172,6 +216,9 @@ class PublicComplaintController extends Controller
             // If email failed, still show success but with a note
             $successMessage .= ' (Nota: Emel pengesahan tidak dapat dihantar, tetapi aduan anda telah direkodkan.)';
         }
+
+        // Clear the submission lock after successful creation
+        session()->forget('complaint_submission_lock');
 
         return redirect()->route('public.complaint.create')
             ->with('success', $successMessage)
