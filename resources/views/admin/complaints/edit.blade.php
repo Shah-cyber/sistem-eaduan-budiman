@@ -657,6 +657,9 @@
 				});
 			});
 		});
+
+		// Prevent double submission
+		preventDoubleSubmit('complaintForm', 'Mengemaskini Aduan...');
 	</script>
 	@endpush
 @endsection

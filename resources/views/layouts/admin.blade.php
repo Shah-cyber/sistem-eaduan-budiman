@@ -9,6 +9,7 @@
 	@vite(['resources/css/app.css', 'resources/js/app.js'])
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.46.0/dist/apexcharts.min.js"></script>
+	<script src="{{ asset('js/prevent-double-submit.js') }}"></script>
 </head>
 <body class="bg-gray-50 text-gray-900">
 	@php($user = auth()->user())

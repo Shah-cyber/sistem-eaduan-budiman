@@ -720,6 +720,9 @@
             confirmButtonText: 'OK'
         });
     @endif
+
+    // Prevent double submission
+    preventDoubleSubmit('complaintForm', 'Menghantar Aduan...');
 </script>
 @endpush
 @endsection

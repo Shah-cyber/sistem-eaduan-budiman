@@ -569,6 +569,9 @@
 				}
 			}
 		});
+
+		// Prevent double submission
+		preventDoubleSubmit('complaintForm', 'Menyimpan Aduan...');
 	</script>
 	@endpush
 @endsection
